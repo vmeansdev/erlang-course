@@ -27,4 +27,11 @@ atom10 < atom2. %% - false (кол-во символов в atom10 больше 
 #{a => 1} < #{a => 0, b => 0}. %% - true (больше значений)
 {a, 1, 0} > {a, 0, 0}. %% - true
 
+%% 1.4
+  %% - Зарезервированные создателями языка: after and andalso band begin bnot bor 
+  %% bsl bsr bxor case catch cond div end fun if let not of or orelse query receive rem try when xor
+  %% - строгое равенство: 1 =:= 1 (true) и 1 =:= 1.0 (false), нестрогое 1 == 1 (true), 1 =:= 1.0 (true)
+  %% - строгое проверяет значение и тип, нестрогое - только значение
+  %% - f(X). - забыть значение X, f(). - забыть все связывания в интерпретаторе
+
 
