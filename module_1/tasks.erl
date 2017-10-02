@@ -19,3 +19,12 @@ Person = #{name => "Mike", surname => "Williams", phone  => [1,2,3,4]}.
     phone := Phone
 } = Person.
 %% - ошибка матчинга, 2 раза используем Name. сыпется на матче surname := Name, т.к "Mike" =/= "Williams"
+
+%% 1.3
+atom1 > atom2. %% - false
+atom10 < atom2. %% - false (кол-во символов в atom10 больше чем в atom2, значит он больше)
+#{a => 0} < #{a => 1}. %% - true
+#{a => 1} < #{a => 0, b => 0}. %% - true (больше значений)
+{a, 1, 0} > {a, 0, 0}. %% - true
+
+
