@@ -35,3 +35,47 @@ atom10 < atom2. %% - false (кол-во символов в atom10 больше 
   %% - f(X). - забыть значение X, f(). - забыть все связывания в интерпретаторе
 
 
+%% 1.5
+[{X, Y} || X <- [1,2,3], Y <- [4,5,6]]. %% - декартово произведение
+
+List = [[1,2,3], [4,5,6], [7,8,9]].
+
+[Elem || SubList <- List, Elem <- SubList]. %% - плоский список
+
+Dicts = [
+    #{
+        tags => [awesome, erlang],
+    },
+    #{
+        tags => [simple_tag]
+    },
+    #{
+        tags => [just_atom, 'I am ok']
+    }
+],
+
+[Value || Dict <- Dicts, Value <- maps:get(tags, Dict)]. %% - [awesome, erlang, simple_tag, justom_atom, 'I am ok'].
+
+MixedList = [
+    john,
+    doe,
+    {age, 19},
+    {height, 182},
+    {weight, 72},
+    london,
+    britain
+],
+
+TuplesList = [Tuple || Tuple <- MixedList, is_tuple(Tuple)], %% - [{age, 19}, {height, 182},{weight, 72}]
+
+AtomsList  = [Atom  || Atom  <- MixedList, is_atom(Atom)]. %% - [john, doe, london, britain]
+
+Shapes = [
+    {{0, 0}, {10, 10}},
+    {{0, 1}, {2, 30}},
+    {{30, 31}, {40, 41}},
+    {{32, 56}, {5, 9}}
+],
+
+N = 100,
+LessThanNSquares = [{{X1, Y1},{X2, Y2}} || {{X1,Y1},{X2,Y2}} <- Shapes, ((X2 - X1) * (Y2 - Y1)) < N].
