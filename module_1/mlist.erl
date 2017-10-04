@@ -106,5 +106,5 @@ dna_to_rna(List) when is_list(List) ->
 %% - Пример: cut_rdna("AAGGTT", "AGG") => "ATT".
 cut_rdna([], _) -> [];
 cut_rdna(List, []) -> List;
-cut_rdna(List, Seq) when length(Seq) == 3 -> %% just stub now
-  List.
+cut_rdna(List, Seq) when length(Seq) == 3 -> 
+  List -- Seq.
