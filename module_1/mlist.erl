@@ -8,14 +8,21 @@
 
 %% - Напишите функцию create/1, которая на вход принимает число N
 %% - и возвращает список вида [1, 2,..., N -1, N].
+create(Acc, 0) -> Acc;
+create(Acc, Cur) ->
+ create([Cur | Acc], Cur - 1). 
 create(0) -> [];
 create(N) when N > 0 ->
-  create(N - 1) ++ [N].
+  create([], N).
+
 
 %% - Напишите функцию, которая также принимает число N, но возвращает список вида [N, N-1, ..., 2,1].
+reverse_create(Acc, N, N) -> Acc;
+reverse_create(Acc, Cur, N) ->
+  reverse_create([Cur | Acc], Cur + 1, N). 
 reverse_create(0) -> create(0);
 reverse_create(N) when N > 0 ->
-  [N | create(N - 1)].
+  reverse_create([], 1, N + 1).
 
 %% - Напишите функцию, которая распечатывает все числа от 1 до N.
 print(To, From) when To > From ->
