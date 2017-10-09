@@ -75,18 +75,25 @@ reverse(List) ->
 
 %% - Напишите функцию, которая преобразует список списков в один список,
 %% - соединяя все списки-элементы. Пример: concatenate([[1,2,3], [], [4, five]]) => [1,2,3,4,five].
-concatenate(Acc, []) -> Acc;
-concatenate(Acc, [H | T]) when is_list(H) ->
-  concatenate(Acc, H ++ T);
-concatenate(Acc, [H | T]) ->
-  concatenate(Acc ++ [H], T).
+concatenate(Acc, [ElemHead|ElemTail], T) ->
+  concatenate([ElemHead|Acc], ElemTail, T);
+concatenate(Acc, [], [ElemHead|ElemTail]) ->
+  concatenate(Acc, ElemHead, ElemTail);
+concatenate(Acc, [], []) ->
+  reverse(Acc).
 
-concatenate(List) ->
-  concatenate([], List).
+concatenate([H|T]) ->
+  concatenate([], H, T).
 
 %% - Напишите функцию, которая по списку вложенных списков
-%% - строит линейный список. Пример: flatten([[1, [2 , [3] , [] ], [[[4]]], [5,6]]) => [1,2,3,4,5,6].
-flatten(List) -> concatenate(List).
+%% - строит линейный список. Пример: flatten([[1, [2 , [3] , [] ], [[[4]]], [5,6]]]) => [1,2,3,4,5,6].
+flatten(List) -> reverse(flatten([], List)).
+
+flatten(Acc, []) -> Acc;
+flatten(Acc, [H|T]) when is_list(H) ->
+  flatten(flatten(H,Acc), T);
+flatten(Acc, [H|T]) ->
+  flatten([H|Acc], T).
 
 %% - Напишите функцию, которая принимает на вход последовательность нуклеотидов ДНК и выдает
 %% - комплементарную ей цепочку нуклеотидов РНК. Траскрипция происходит путем замены нуклеотидов
