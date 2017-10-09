@@ -30,6 +30,8 @@ match(Element, [_ | T]) -> match(Element, [], T).
 
 delete(Key, Acc, [{Key, _Val} | [{NFKey, NFVal} | T]]) ->
     delete(Key, [{NFKey, NFVal} | Acc], T);
+delete(Key, Acc, [{Key, _} | T]) ->
+  delete(Key, Acc, T);
 delete(Key, Acc, [{NFKey, NFVal} | T]) ->
     delete(Key, [{NFKey, NFVal} | Acc], T);
 delete(_, Acc, []) -> Acc.
