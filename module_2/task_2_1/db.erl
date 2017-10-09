@@ -5,7 +5,8 @@
          read/2,
          batch_read/2, 
          match/2, 
-         delete/2, 
+         delete/2,
+         batch_delete/2, 
          destroy/1]).
 
 -type db()      :: #{}.
@@ -31,7 +32,7 @@ read(Key, #{data := [{Key, Val} | _]}) -> {ok, Val};
 read(Key, #{data := [_ | T]}=Db)       -> read(Key, Db#{data := T});
 read(_,   #{data := []})               -> {error, instance}.
 
--spec batch_read([key()], db()) -> [key(), element()].
+-spec batch_read([key()], db()) -> [{key(), element()}].
 batch_read([], Db) -> Db;
 batch_read(_,       #{data := []}) -> {error, instance};
 batch_read(KeyList, #{params := {batch, Value}}=Db) ->
@@ -54,6 +55,23 @@ batch_read(Acc, Value, [KH | KT], Db) ->
   end;
 batch_read(Acc, 0, [], _) -> Acc.
 
+
+-spec batch_delete([key()], db()) -> db().
+batch_delete([], Db) -> Db;
+batch_delete(_, #{data := []}) -> {error, instance};
+batch_delete(KeyList, #{params := {batch, Value}}=Db) ->
+  KeysLength = length(KeyList),
+  if
+    KeysLength > Value -> {error, batch_limit};
+    true -> batch_delete(KeysLength, KeyList, Db)
+  end.
+
+%% batch_delete helper
+batch_delete(Value, [KH | KT], Db) ->
+  NewDB = delete(KH, Db),
+  batch_delete(Value - 1, KT, NewDB);
+batch_delete(0, [], Db) -> Db.
+
 %% match helper
 match(Element, Matches, [{Key, Element} | T]) ->
     match(Element, [Key | Matches], T);
@@ -66,15 +84,19 @@ match(Element, #{data := [_ | T]})              -> match(Element, [], T).
 
 
 %% delete helper
-delete(Key, Acc, #{data := [{Key, _Val} | [{NFKey, NFVal} | T]]}=Db) ->
-    delete(Key, [{NFKey, NFVal} | Acc], Db#{data := T});
+delete(Key, Acc, #{data := [{Key, _} | [{NFKey, NFVal} | T]]}=Db) ->
+  delete(Key, [{NFKey, NFVal} | Acc], Db#{data := T});
+delete(Key, Acc, #{data := [{Key, _} | T]}=Db) ->
+  delete(Key, Acc, Db#{data := T});
 delete(Key, Acc, #{data := [{NFKey, NFVal} | T]}=Db) ->
-    delete(Key, [{NFKey, NFVal} | Acc], Db#{data := T});
-delete(_, Acc, #{data := []}=Db) -> Db#{data := Acc}.
+  delete(Key, [{NFKey, NFVal} | Acc], Db#{data := T});
+delete(_,   Acc, #{data := []}=Db) ->
+  NewDB = Db#{data := Acc},
+  NewDB.
 
 %% delete
 -spec delete(key(), db()) -> db().
-delete(_Key, #{data := []}) -> [];
+delete(_Key, #{data := []}=Db) -> Db;
 delete(Key, Db)             -> delete(Key, [], Db).
 
 
