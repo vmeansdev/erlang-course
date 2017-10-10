@@ -18,16 +18,16 @@
 
 proc_loop(Db) ->
   receive
-    {From, Func, {Key, Element}} ->
-      NewDB = ?MODULE:Func(Key, Element, Db),
-      From ! NewDB,
-      proc_loop(NewDB);
     {From, Func, Term} ->
-      NewDB = ?MODULE:Func(Term, Db),
+      NewDB = case Term of
+                {Key, Element} -> ?MODULE:Func(Key, Element, Db);
+                _              -> ?MODULE:Func(Term, Db)
+              end,
       From ! NewDB,
-      if
-        Func =/= delete, Func =/= batch_delete -> proc_loop(Db);
-        true                                   -> proc_loop(NewDB)
+      Modifiers = [delete, batch_delete, write],
+      case lists:member(Func, Modifiers) of
+        true -> proc_loop(NewDB);
+        _    -> proc_loop(Db)
       end
   end.
 
