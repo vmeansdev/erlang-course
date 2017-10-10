@@ -18,30 +18,17 @@
 
 proc_loop(Db) ->
   receive
-    {From, write, {Key, Element}} ->
-      NewDb = write(Key, Element, Db),
-      From ! NewDb,
-      proc_loop(NewDb);
-    {From, read, Key} ->
-      NewDb = read(Key, Db),
-      From ! NewDb,
-      proc_loop(Db);
-    {From, batch_read, KeyList} ->
-      NewDb = batch_read(KeyList, Db),
-      From ! NewDb,
-      proc_loop(Db);
-    {From, batch_delete, KeyList} ->
-      NewDb = batch_delete(KeyList, Db),
-      From ! NewDb,
-      proc_loop(NewDb);
-    {From, match, Element} ->
-      NewDb = match(Element, Db),
-      From ! NewDb,
-      proc_loop(Db);
-    {From, delete, Key} ->
-      NewDb = delete(Key, Db),
-      From ! NewDb,
-      proc_loop(NewDb)
+    {From, Func, {Key, Element}} ->
+      NewDB = ?MODULE:Func(Key, Element, Db),
+      From ! NewDB,
+      proc_loop(NewDB);
+    {From, Func, Term} ->
+      NewDB = ?MODULE:Func(Term, Db),
+      From ! NewDB,
+      if
+        Func =/= delete, Func =/= batch_delete -> proc_loop(Db);
+        true                                   -> proc_loop(NewDB)
+      end
   end.
 
 -spec new() -> db().
