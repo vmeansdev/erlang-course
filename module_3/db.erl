@@ -1,7 +1,6 @@
 -module(db).
 -export([new/0,
          new/1,
-         proc_loop/1,
          write/3, 
          read/2,
          batch_read/2, 
@@ -34,7 +33,7 @@ proc_loop(Db) ->
     {From, batch_delete, KeyList} ->
       NewDb = batch_delete(KeyList, Db),
       From ! NewDb,
-      proc_loop(Db);
+      proc_loop(NewDb);
     {From, match, Element} ->
       NewDb = match(Element, Db),
       From ! NewDb,
@@ -42,7 +41,7 @@ proc_loop(Db) ->
     {From, delete, Key} ->
       NewDb = delete(Key, Db),
       From ! NewDb,
-      proc_loop(Db)
+      proc_loop(NewDb)
   end.
 
 -spec new() -> db().
@@ -55,7 +54,7 @@ new(Parameters) ->
   #{type := Type} = Parameters,
   case Type of
     map  -> Db;
-    proc -> spawn(?MODULE, proc_loop, [Db])
+    proc -> spawn(fun() -> proc_loop(Db) end)
   end.
 
 -spec write(key(), element(), db()) -> db().
