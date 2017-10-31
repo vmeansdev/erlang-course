@@ -23,7 +23,7 @@ new(Name) ->
 %% Удаляет таблицу (останавливает процесс)
 -spec delete(Name :: atom()) -> ok.
 delete(Name) -> 
-  gen_server:call(Name, delete).
+  gen_server:stop(Name).
 
 %% Удаляет запись из таблицы по ключу
 -spec delete(Name :: atom(), Key :: term()) -> ok.
@@ -54,9 +54,6 @@ init([]) ->
 handle_call(delete_all, _From, Db) ->
   NewDb = Db#{data => []},
   {reply, ok, NewDb};
-
-handle_call(delete, _From, Db)->
-  {stop, normal, Db};
 
 handle_call({delete, Key}, _From, Db) ->
   NewDb = db:delete(Key, Db),
